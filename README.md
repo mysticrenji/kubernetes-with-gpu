@@ -1,2 +1,2 @@
 # kubernetes-with-gpu
-Simple K8s Cluster with Nvidia GPU 
+Simple K3s Cluster with Nvidia GPU 
