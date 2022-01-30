@@ -1,0 +1,21 @@
+---
+- hosts: all
+  become: true
+  tasks:
+
+  - name: Copy Kubelet, Kubeadm, Docker
+    copy: src=./slave-setup.sh dest=/tmp/kube-setup.sh mode=0777
+
+  - name: Execute Installation Script
+    command: sh /tmp/kube-setup.sh
+
+ # - name: Copy the join command to server location
+ #   copy: src=./join-command dest=/tmp/join-command.sh mode=0777
+
+ # - name: Join the node to cluster
+ #   command: sh /tmp/join-command.sh
+
+# Step 2.7: Setup a handler for checking Docker daemon using the below code.
+  handlers:
+    - name: docker status
+      service: name=docker state=started  

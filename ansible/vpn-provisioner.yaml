@@ -1,0 +1,40 @@
+---
+- hosts: all
+  become: true
+  tasks:
+
+  - name: Recursively remove directory
+    ansible.builtin.file:
+      path: /home/ubuntu/vpn/
+      state: absent
+
+  - name: Create a directory if it does not exist
+    ansible.builtin.file:
+      path: /home/ubuntu/vpn/
+      state: directory
+      mode: '0755'
+ 
+  - name: Copy VPN executables and profile
+    copy: src={{ item.src }} dest={{ item.dest }} mode={{ item.mode }}
+    with_items:
+    - { src: './vpn.sh', dest: '/home/ubuntu/vpn/', mode: '0777' }
+    - { src: './vpn.ovpn', dest: '/home/ubuntu/vpn/', mode: '0777' }
+    - { src: './connect-openvpn.sh', dest: '/home/ubuntu/vpn/', mode: '0777' }   
+
+  - name: Execute VPN Config
+    command: sh /home/ubuntu/vpn/vpn.sh
+    register: token
+
+  - debug:
+      msg: "Token - {{ token }}"
+
+  - name: Create a cronjob for VPN
+    ansible.builtin.cron:
+      name: "Cronjob for connecting VPN via OpenVPN"
+      special_time: reboot
+      job: "/home/ubuntu/vpn/connect-openvpn.sh"
+    become: false
+
+#  - name: Unconditionally reboot the machine with all defaults
+#    reboot:
+    
